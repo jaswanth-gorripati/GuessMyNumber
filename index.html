@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html ng-app="gmn">
 <head>
-	<title>Guess My Number </title>
+	<title>Auction App</title>
+	<script type="text/javascript" src="./web3.js/dist/web3.min.js"></script>
+	<script type="text/javascript">
+		if (typeof web3 !== 'undefined') {
+			web3 = new Web3(web3.currentProvider);
+		} else {
+			// set the provider you want from Web3.providers
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		}
+</script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-	<script type="text/javascript" src="./angular.min.js"></script>
-	<script type="text/javascript" src="./index1.js"></script>
-	<style type="text/css">
+
+	
+<script type="text/javascript" src="./angular.min.js"></script>
+<script type="text/javascript" src="./index1.js"></script>
+<style type="text/css">
 		.sidebar:hover{
 			background-color: #d1d1ea;
 			font-weight: bold;
@@ -34,16 +45,14 @@
 	<nav class="navbar navbar-fixed-top navbar-expand-md navbar-dark bg-dark"> 
       <a class="navbar-brand" style="color: lightgrey;font-size: 50px;margin-left: 35%">Guess My Number</a>
     </nav>
-    <div class="container">
-    <div class="col-sm-2"></div>
-    	<form ng-submit="logIn()" ng-if="!$ctrl.isLoggedIn" class="col-sm-8 maindiv" style="padding: 30px;">
-    		<label>
-    			<b>Account Address</b>
-    		</label>
-    		<input type="text" name="AccountAddress" class="form-control col-sm-8" ng-model="$ctrl.Account.Address" required><br><br>
-    		<button class="btn btn-primary btn-md col-sm-6" ng-disabled="!$ctrl.Account.Address">Login</button>
-    	</form>
-    	
+    <div class="container" ng-if="!$ctrl.isLoggedIn">
+    	 <div class="jumbotron">
+		<div class="container">
+			<h1 class="display-3">Welcome !</h1>
+			<p>This is a Basic Dapp example for demostrating the metamask along with angular . <br> In this App  you can place bettings and earn Coins. First you need to have some coins ( if not you can buy from Buy Coins Tab) . Then you can participate in the Bettings or you can place a betting . Here You need to choose a Number Between <span style="color:blue"> 1 - 6</span> and place the bettings </p>
+			<p><a class="btn btn-primary btn-lg" href="#" role="button" ng-click="logIn()">Login using Metamask Account  &raquo;</a></p>
+		</div>
+		</div>
     </div>
     <div class="row" ng-if="$ctrl.isLoggedIn">
     <div class="col-sm-3" style="overflow:auto;margin-top: 30px;border-radius: 10px;">
@@ -87,7 +96,7 @@
 	    				</tr>
 	    			</thead>
 	    			<tbody>
-	    				<tr ng-repeat="myBets in myBettings">
+	    				<tr ng-repeat="myBets in $ctrl.myBettings">
 	    					<td>{{myBets.betId}}</td>
 	    					<td>{{myBets.minimumCoins}}</td>
 	    					<td>{{myBets.maximumCoins}}</td>
@@ -109,7 +118,7 @@
 	    				</tr>
 	    			</thead>
 	    			<tbody>
-	    				<tr ng-repeat="bp in bettingsParticipated">
+	    				<tr ng-repeat="bp in $ctrl.bettingsParticipated">
 	    					<td>{{bp.betid}}</td>
 	    					<td>{{bp.isWon}}</td>
 	    					<td>{{bp.AmountLostOrGained}}</td>
