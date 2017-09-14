@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html ng-app="gmn">
+<head>
+	<title>Guess My Number </title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+	<script type="text/javascript" src="./angular.min.js"></script>
+	<script type="text/javascript" src="./index1.js"></script>
+	<style type="text/css">
+		.sidebar:hover{
+			background-color: #d1d1ea;
+			font-weight: bold;
+		}
+		.sidebar{
+			padding:6px;
+			margin-left: 10px;
+		}
+		.maindiv{
+			padding: 10px;overflow-y: auto;margin-top: 30px;overflow-x: hidden;
+			background-color: lightgrey;
+			border-radius: 5px;
+		}
+		.block1{
+			background-color: lightgrey;
+		}
+		.bettingsDiv{
+			background-color:#9ebfbc ; margin:20px;padding: 10px;border-radius: 7px;box-shadow: 3px 3px 3px;
+		}
+		.bettingsDiv:hover{
+			background-color: #009688;box-shadow: 8px 8px 8px;
+		}
+	</style>
+</head>
+<body ng-controller="mainCtrl as $ctrl" style="background-color: #dedddd;background-attachment:'./1.jpg' ">
+	<nav class="navbar navbar-fixed-top navbar-expand-md navbar-dark bg-dark"> 
+      <a class="navbar-brand" style="color: lightgrey;font-size: 50px;margin-left: 35%">Guess My Number</a>
+    </nav>
+    <div class="container">
+    <div class="col-sm-2"></div>
+    	<form ng-submit="logIn()" ng-if="!$ctrl.isLoggedIn" class="col-sm-8 maindiv" style="padding: 30px;">
+    		<label>
+    			<b>Account Address</b>
+    		</label>
+    		<input type="text" name="AccountAddress" class="form-control col-sm-8" ng-model="$ctrl.Account.Address" required><br><br>
+    		<button class="btn btn-primary btn-md col-sm-6" ng-disabled="!$ctrl.Account.Address">Login</button>
+    	</form>
+    	
+    </div>
+    <div class="row" ng-if="$ctrl.isLoggedIn">
+    <div class="col-sm-3" style="overflow:auto;margin-top: 30px;border-radius: 10px;">
+    	<div class="sidebar" ng-click="displayDivs(0)" ng-class="{'selected': $index==selectedIndex}" class="block1">
+    		<label>Profile</label>
+    	</div>
+    	<div class="sidebar" ng-click="displayDivs(1)">
+    		<label>Buy Coins</label>
+    	</div>
+    	<div class="sidebar" ng-click="displayDivs(2)">
+    		<label>Participate in Bet</label>
+    	</div>
+    	<div class="sidebar" ng-click="displayDivs(3)">
+    		<label>Place Betting</label>
+    	</div>
+    </div>
+    <div class="col-sm-8 maindiv" ng-if="displayDiv[0]">
+    	<div> <h3 class="text-center">Profile Details</h3></div><hr>
+    	<div class="row">
+    		<div class="col-sm-6" >
+	    		<h5>Current Coin Balance : {{currentCoins}}</h5>
+	    	</div>
+	    	<div class="col-sm-6 ">
+	    		<h5>Freezed Coins : {{freezedCoins}}</h5>
+	    	</div><br><br>
+	    	<div class="col-sm-6">Total Bets Won : {{betsWon}}</div>
+	    	<div class="col-sm-6">Total Bets Lost : {{betsLost}}</div>
+	    	<div class="col-sm-6">Total Coins Won : {{coinsWon}}</div>
+	    	<div class="col-sm-6">Total Coins Lost : {{coinsLost}}</div><br>
+	    	<br>
+	    	<div class="col-sm-7">
+	    		<h4 class="text-center">Placed Bets</h4>
+	    		<table class="table table-striped">
+	    			<thead>
+	    				<tr>
+	    					<td>BetId</td>
+	    					<td>Min GameCoins</td>
+	    					<td>Max GameCoins</td>
+	    					<td>Multiplier</td>
+	    					<td>Is Active</td>
+	    				</tr>
+	    			</thead>
+	    			<tbody>
+	    				<tr ng-repeat="myBets in myBettings">
+	    					<td>{{myBets.betId}}</td>
+	    					<td>{{myBets.minimumCoins}}</td>
+	    					<td>{{myBets.maximumCoins}}</td>
+	    					<td>{{myBets.multiple}}</td>
+	    					<td>{{myBets.isActive}}</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+
+	    	<div class="col-sm-4" style="margin-left: 20px">
+	    		<h4 class="text-center">Bettings Participated</h4>
+	    		<table class="table table-striped">
+	    			<thead>
+	    				<tr>
+	    					<td>BetId</td>
+	    					<td>Won/Loss</td>
+	    					<td>Amount Won/lost</td>
+	    				</tr>
+	    			</thead>
+	    			<tbody>
+	    				<tr ng-repeat="bp in bettingsParticipated">
+	    					<td>{{bp.betid}}</td>
+	    					<td>{{bp.isWon}}</td>
+	    					<td>{{bp.AmountLostOrGained}}</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+    	</div>
+    </div>
+    <div class="col-sm-8 maindiv"  id="nav2" ng-if="displayDiv[1]">
+		<div class="form-group col-sm-12" >
+		    <div> <h3 class="text-center">Buy Game Coins</h3></div><hr>
+		    <div>
+		    	<h4 >Price Per Coin : {{PricePerCoin}} ether</h4><br>
+		    	 <input type="number" ng-model="$ctrl.inEther"  ng-disabled="$ctrl.inGameCoins " class="form-control col-sm-8" id="Ether" placeholder="Enter Amount Of Ether"><h6 style="color:red"> OR </h6>
+			    <input type="number" ng-model="$ctrl.inGameCoins" ng-disabled="$ctrl.inEther " class="form-control col-sm-8" id="GameCoins" placeholder="Enter GameCoins you want"><br><br>
+			    <button ng-disabled="!$ctrl.inEther && !$ctrl.inGameCoins" ng-click="buyGameCoins()" class="btn btn-lg col-sm-8 btn-primary">BUY COINS</button>
+			    </div>
+		   
+		</div>
+    </div>
+    <div class="col-sm-8 maindiv" id="nav3" ng-if="displayDiv[2]" style="overflow-x: hidden">
+    	<div> <h3 class="text-center">Active Bettings </h3></div><hr>
+    	<div class="col-sm-12"><h5>Your Remaining Coins : {{currentCoins-freezedCoins}} </h5></div>
+    	<div class="row" style="margin-left: 20px">
+    		<div ng-repeat="bet in $ctrl.bettings" class="col-sm-5 bettingsDiv" ng-click="$ctrl.DoBettingOn($index)" style="" data-toggle="modal" data-target="#PlaceBetModal">
+	    		<div style="padding: 15px;"">
+	    			<span style="margin-right:25%">Betting Id : {{bet.betId}}</span><label style="text-align: right">Multiple : {{bet.multiple}}</label>
+		    		<label>Minimun Bettig Coins : {{bet.minimumCoins}}</label>
+		    		<label>Maximum Betting Coins: {{bet.maximumCoins}}</label>
+
+	    		</div>
+	    	</div>
+    	</div>
+    	
+    </div>
+    <div class="col-sm-8 maindiv" ng-if="displayDiv[4]">
+    	<form ng-submit="betForNumber()">
+    		<div class="col-sm-12 ">
+    			<h3 style="padding: 10px;" class="text-center">Bet Details</h3><hr>
+    			<h5>BetId : {{$ctrl.clickedBet.betId}}</h5>
+    			<h5>Multiple : {{$ctrl.clickedBet.multiple}}</h5>
+    			<h5>Minimum BetCoins : {{$ctrl.clickedBet.minimumCoins}}</h5>
+    			<h5>Maximum BetCoins : {{$ctrl.clickedBet.maximumCoins}}</h5><br><br>
+    			<input type="number" class="form-control col-sm-6" name="BetNumber" min="{{$ctrl.clickedBet.minimumCoins}}" max="{{$ctrl.clickedBet.maximumCoins}}" placeholder="Enter Your betting Coins" required ng-model="$ctrl.clickedBet.BetTokens"><br>
+    			<input type="number" class="form-control col-sm-6" name="BetNumber" min="0" max="6" placeholder="Enter Your Guess Number" required ng-model="$ctrl.clickedBet.guessNumber">
+    			<br><br>
+    			 <button ng-disabled="!$ctrl.clickedBet.BetTokens && !$ctrl.clickedBet.guessNumber" class="btn btn-lg col-sm-4 btn-primary">Bet</button>
+    			 <button  ng-click="betCancel()" class="btn btn-lg col-sm-4 btn-danger">Cancel</button>
+    		</div>
+    	</form>
+		</div>
+    <div class="col-sm-8 maindiv" id="nav4" ng-if="displayDiv[3]">
+    <div> <h3 class="text-center">Place Your Betting </h3></div><hr>
+    	<form class="col-sm-8" style="margin-left: 30px;padding: 10px" ng-submit="$ctrl.PlaceMyBetting()">
+		  <div class="form-group">
+		    <label for="exampleInputEmail1">Minimun Bet Coins</label>
+		    <input type="number" ng-model="$ctrl.BettingToBePlaced.minCoins" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required min="1" max="{{(currentCoins-freezedCoins)}}">
+		    <small id="emailHelp" class="form-text text-muted">Initial amount to bet </small>
+		  </div>
+		  <div class="form-group">
+		    <label for="exampleInputPassword1">Maximum Bet Coins</label>
+		    <input type="number"  ng-model="$ctrl.BettingToBePlaced.maxCoins"  class="form-control" id="exampleInputPassword1" required min="{{$ctrl.BettingToBePlaced.minCoins}}" max="{{(currentCoins-freezedCoins)}}">
+		  </div>
+		   <div class="form-group">
+		    <label for="exampleInputPassword3">Multiple</label>
+		    <input type="number"  ng-model="$ctrl.BettingToBePlaced.multiple"  class="form-control" id="exampleInputPassword3"  aria-describedby="emailHelp1" required min="1" max="{{(currentCoins-freezedCoins)/$ctrl.BettingToBePlaced.maxCoins}}">  <small id="emailHelp1" class="form-text text-muted">Multiple of amount that you can loose</small>
+		  </div>
+		   <div class="form-group">
+		    <label for="exampleInputPassword2">Your Secret Number</label>
+		    <input type="number"  ng-model="$ctrl.BettingToBePlaced.secretNumber"  class="form-control" id="exampleInputPassword2" aria-describedby="emailHelp4" required min="1" max="6">
+		    <small id="emailHelp4" class="form-text text-muted">This Number is Kept secret</small>
+		  </div>
+		 
+		  <button type="submit" class="btn btn-lg col-sm-6 btn-primary">Submit</button>
+		</form>
+    </div>
+     </div>
+	<!--<table class="col-sm-8 table-striped">
+		<thead>
+			<tr>
+				<td>s.no</td>
+				<td>Account Address</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="account in accounts">
+			<td>{{$index+1}}</td>
+			<td>{{account}}</td>
+			</tr>
+		</tbody>
+	</table>-->
+</body>
+</html>

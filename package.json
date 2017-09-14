@@ -1,0 +1,19 @@
+{
+  "name": "guessmynumber",
+  "version": "1.0.0",
+  "description": "An guessmynumber App using frontend",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "guessmynumber"
+  ],
+  "author": "Jaswanth",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.4",
+    "solc": "^0.4.15"
+  }
+}

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html ng-app="gmn">
+<head>
+	<title>Guess My Number </title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+	<script type="text/javascript" src="./web3.js"></script>
+	
+	<style type="text/css">
+		.sidebar:hover{
+			background-color: #d1d1ea;
+			font-weight: bold;
+		}
+		.sidebar{
+			padding:6px;
+			margin-left: 10px;
+		}
+		.maindiv{
+			padding: 10px;overflow-y: auto;margin-top: 30px;overflow-x: hidden;
+			background-color: lightgrey;
+			border-radius: 5px;
+		}
+		.block1{
+			background-color: lightgrey;
+		}
+		.bettingsDiv{
+			background-color:#9ebfbc ; margin:20px;padding: 10px;border-radius: 7px;box-shadow: 3px 3px 3px;
+		}
+		.bettingsDiv:hover{
+			background-color: #009688;box-shadow: 8px 8px 8px;
+		}
+	</style>
+	<script type="text/javascript" >
+		if (typeof web3 !== 'undefined') {
+			web3 = new Web3(web3.currentProvider);
+		} else {
+			// set the provider you want from Web3.providers
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		}
+		window.onload = function(){
+			document.getElementById("login").style.display="block";
+			document.getElementById("afterLogin").style.display="none";
+		}
+		var contract_address = "0x40947ad32d23b9960cb20f36b7d6bb25be7564d1";
+		var contract_abi = JSON.parse('[{"constant":false,"inputs":[{"name":"bettingID","type":"uint256"},{"name":"guessNumber","type":"uint256"},{"name":"betTokens","type":"uint256"}],"name":"BetForNumber","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"BaseBetTokens","type":"uint256"},{"name":"MaxBetTokens","type":"uint256"},{"name":"Multiple","type":"uint256"},{"name":"NumberToBet","type":"uint256"}],"name":"PlaceBet","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"kill","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"balanceGameCoins","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"Bets","outputs":[{"name":"BettingPlacedBy","type":"address"},{"name":"InitialBetTokens","type":"uint256"},{"name":"MaxBettingTokens","type":"uint256"},{"name":"MultipleForBetTokens","type":"uint256"},{"name":"IsActive","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"name":"Bettings","outputs":[{"name":"BettingTokens","type":"uint256"},{"name":"bettingAdress","type":"address"},{"name":"isWon","type":"bool"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"TransferToMyAccount","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"priceOfEachGameCoin","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"BuyGameCoins","outputs":[{"name":"","type":"string"}],"payable":true,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"freezedTokens","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"Owner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"coinBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"inputs":[{"name":"supply","type":"uint256"},{"name":"price","type":"uint256"}],"payable":true,"type":"constructor"},{"payable":true,"type":"fallback"},{"anonymous":false,"inputs":[{"indexed":false,"name":"message","type":"string"}],"name":"error","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"buyedBy","type":"address"},{"indexed":false,"name":"amountPayed","type":"uint256"},{"indexed":false,"name":"AmountOfCoins","type":"uint256"}],"name":"BuyingCoinsEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"FreezedAccount","type":"address"},{"indexed":false,"name":"FreezedAmount","type":"uint256"}],"name":"FreezingCoinsEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"message","type":"string"}],"name":"NotEnoughtCoinsError","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"Message","type":"string"}],"name":"errorInBetPlacing","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"BetNumber","type":"uint256"},{"indexed":true,"name":"by","type":"address"},{"indexed":false,"name":"BaseBetTokens","type":"uint256"},{"indexed":false,"name":"MaxBetTokens","type":"uint256"},{"indexed":false,"name":"Multiple","type":"uint256"}],"name":"BettingPlacedEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"betId","type":"uint256"},{"indexed":true,"name":"betBy","type":"address"},{"indexed":false,"name":"betAmount","type":"uint256"},{"indexed":true,"name":"isWon","type":"bool"},{"indexed":false,"name":"AmountLostOrGained","type":"uint256"}],"name":"bettingEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"message","type":"string"}],"name":"NotAllowedToBet","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"amount","type":"uint256"}],"name":"MoneyTransferedToOwner","type":"event"}]')
+		var contract_instance = web3.eth.contract(contract_abi).at(contract_address);
+		contract_instance.balanceGameCoins(function(err,data){
+			console.log(data)
+		})
+		function login(){
+			var address =document.getElementById("AccountAddress").value;
+			var accounts = web3.eth.accounts;
+			for(var acc=0;acc<accounts.length;acc++){
+				
+				if(accounts[acc]===req.body.Address){
+					console.log("Equals : ",accounts[acc],req.body.Address)
+					signingAccount = accounts[acc];
+					console.log("signingAccount: ",signingAccount);
+				}
+			}
+			if(signingAccount){
+				coinBalanceFn();
+				initialBetting();
+			}
+		}
+		var coinBalance={}
+		function coinBalanceFn(){
+			contract_instance.coinBalance(signingAccount,function(err,data){
+				if(err){
+					console.log(err);
+				}else{
+					coinBalance.currentCoins = data;
+					document.getElementById("coinBase").innerHTML = "Current Coin Balance : "+coinBalance.currentCoins+""
+					contract_instance.freezedTokens(signingAccount,function(err,data1){
+						if(err){
+							console.log(err);
+						}else{
+							coinBalance.freezedCoins = data1;
+							document.getElementById("freezedcoinBase").innerHTML = "Freezed Coin Balance : "+coinBalance.freezedCoins+""
+						}
+					})
+				}
+			})
+		}
+		var PriceOfToken ;
+		contract_instance.priceOfEachGameCoin(function(err,data){
+			if(err){
+				console.log(err);
+			}else{
+				PriceOfToken = data;
+				
+			}
+		})
+		var activeBettings =[];
+		var myBettings = [];
+		var bettingsParticipated =[];
+		function initialBetting(){
+			var Bettings = contract_instance.BettingPlacedEvent({},{ fromBlock: '0', toBlock: 'latest' })
+			Bettings.watch(function(error, bets){
+				if (error)
+					console.log('Error in myEvent event handler: ' + error);
+				else{
+					console.log("Betting placed Events: ",JSON.stringify(bets.args))
+					console.log(signingAccount)
+					if(bets.args.by === signingAccount){
+						console.log("...........")
+						contract_instance.Bets(parseInt(bets.args.BetNumber),function(err,dataActive){
+							if(err){
+								console.log(err);
+							}else{
+								console.log("---->",dataActive,dataActive[4])
+								myBettings.push({"betId":parseInt(bets.args.BetNumber),"By":bets.args.by,"minimumCoins":parseInt(bets.args.BaseBetTokens),"maximumCoins":parseInt(bets.args.MaxBetTokens),"multiple":parseInt(bets.args.Multiple),"isActive":dataActive[4]})
+								console.log(myBettings);
+							}
+						})	
+					}
+					contract_instance.bettingEvent({betId:bets.args.BetNumber,isWon:false},{ fromBlock: '0', toBlock: 'latest' }).get(function(err,data){
+						console.log("Betting event from Initial ",data)
+						if(data){
+							//console.log(data)
+							activeBettings.push({"betId":parseInt(bets.args.BetNumber),"By":bets.args.by,"minimumCoins":parseInt(bets.args.BaseBetTokens),"maximumCoins":parseInt(bets.args.MaxBetTokens),"multiple":parseInt(bets.args.Multiple)});
+							console.log("activeBettings:",activeBettings)
+							var WonEvent = contract_instance.bettingEvent({isWon:true},{ fromBlock: '0', toBlock: 'latest' })
+							WonEvent.watch(function(error, wonBets){
+								if (error)
+									console.log('Error in myEvent event handler: ' + error);
+								else{
+									console.log("Won Event : ",JSON.stringify(wonBets.args))
+									for(var i=0;i<activeBettings.length;i++){
+										if(parseInt(wonBets.args.betId) ==activeBettings[i].betId){
+											activeBettings.splice(i,1);
+											console.log("After Won events",activeBettings)
+										}
+									}
+								}
+							})
+						}
+					})
+				}
+			})
+		}
+		function ActiveBettings(){
+			for(var i=0;i<activeBettings.length;i++){
+
+			}
+		}
+		function Profile(){
+			contract_instance.bettingEvent({betBy:signingAccount},{ fromBlock: '0', toBlock: 'latest' }).get(function(err,data){
+				var totalWins = 0;
+				var totallost= 0;
+				var totalAmountWon = 0;
+				var totalAmountLost = 0;
+				console.log("Toatal wins :",data)
+				var bettingPlacedTable = doccument.getElementById("")
+				if(data!=[]){
+					tatalGamesParticipated  = data.length;
+					for(var tws=0;tws<data.length;tws++){
+						bettingsParticipated.push({"betid":parseInt(data[tws].args.betId),"isWon":data[tws].args.isWon,"AmountLostOrGained":parseInt(data[tws].args.AmountLostOrGained)});
+						if(data[tws].args.isWon == true){
+							totalWins++; 
+							totalAmountWon += parseInt(data[tws].args.AmountLostOrGained);
+						}else{
+							totallost++;
+							totalAmountLost += parseInt(data[tws].args.AmountLostOrGained);
+						}
+						if(tws==data.length-1){
+							/*var ProfileDetails = {"myBettings":myBettings,"bettingsParticipated":bettingsParticipated,"totalWins":totalWins,"totallost":totallost,"totalAmountWon":totalAmountWon,"totalAmountLost":totalAmountLost};
+							res.send(ProfileDetails);*/
+						}
+
+					}
+				}else{
+					/*var ProfileDetails = {"myBettings":"","bettingsParticipated":null,"totalWins":totalWins,"totallost":totallost,"totalAmountWon":totalAmountWon,"totalAmountLost":totalAmountLost};
+					res.send(ProfileDetails);*/
+				}
+			})	
+		}
+		function displayDivs(index){
+			if(index==2){
+				ActiveBettings();
+			}
+			if(index==0){
+				Profile();
+			}
+			for(var i=0;i<5;i++){
+				if(i===index)
+					document.getElementById("display"+index+"").style.display="block";
+				else
+					document.getElementById("display"+i+"").style.display="none";
+			}
+		}
+	</script>
+</head>
+<body style="background-color: #dedddd;background-attachment:'./1.jpg' ">
+	<nav class="navbar navbar-fixed-top navbar-expand-md navbar-dark bg-dark"> 
+      <a class="navbar-brand" style="color: lightgrey;font-size: 50px;margin-left: 35%">Guess My Number</a>
+    </nav>
+    <div class="container" id="login">
+    <div class="col-sm-2"></div>
+    	<form  class="col-sm-8 maindiv" style="padding: 30px;">
+    		<label>
+    			<b>Account Address</b>
+    		</label>
+    		<input type="text" name="AccountAddress" id="AccountAddress" class="form-control col-sm-8"  required><br><br>
+    		<input type="submit" class="btn btn-primary btn-md col-sm-6" onsubmit="login()" >Login</input>
+    	</form>
+    	
+    </div>
+    <div class="row" id="afterLogin">
+    <div class="col-sm-3" style="overflow:auto;margin-top: 30px;border-radius: 10px;">
+    	<div class="sidebar" onclick="displayDivs(0)"  class="block1">
+    		<label>Profile</label>
+    	</div>
+    	<div class="sidebar" onclick="displayDivs(1)">
+    		<label>Buy Coins</label>
+    	</div>
+    	<div class="sidebar" onclick="displayDivs(2)">
+    		<label>Participate in Bet</label>
+    	</div>
+    	<div class="sidebar" onclick="displayDivs(3)">
+    		<label>Place Betting</label>
+    	</div>
+    </div>
+    <div class="col-sm-8 maindiv" id="display0">
+    	<div> <h3 class="text-center">Profile Details</h3></div><hr>
+    	<div class="row">
+    		<div class="col-sm-6" >
+	    		<h5 id="coinBase">Current Coin Balance : </h5>
+	    	</div>
+	    	<div class="col-sm-6 ">
+	    		<h5 id="freezedcoinBase">Freezed Coins :</h5>
+	    	</div><br><br>
+	    	<div class="col-sm-6" id="totalWon">Total Bets Won : </div>
+	    	<div class="col-sm-6" id="totalLost">Total Bets Lost :</div>
+	    	<div class="col-sm-6" id="coinsWon">Total Coins Won :</div>
+	    	<div class="col-sm-6" id="coinsLost">Total Coins Lost : </div><br>
+	    	<br>
+	    	<div class="col-sm-6">
+	    		<h4 class="text-center">Placed Bets</h4>
+	    		<table class="table table-striped">
+	    			<thead>
+	    				<tr>
+	    					<td>BetId</td>
+	    					<td>Min BetCoins</td>
+	    					<td>Max BetCoins</td>
+	    					<td>Multiplier</td>
+	    					<td>Is Active</td>
+	    				</tr>
+	    			</thead>
+	    			<tbody>
+	    				<tr ng-repeat="myBets in myBettings">
+	    					<td>{{myBets.betId}}</td>
+	    					<td>{{myBets.minimumCoins}}</td>
+	    					<td>{{myBets.maximumCoins}}</td>
+	    					<td>{{myBets.multiple}}</td>
+	    					<td>{{myBets.isActive}}</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+
+	    	<div class="col-sm-5" style="margin-left: 20px">
+	    		<h4 class="text-center">Bettings Participated</h4>
+	    		<table class="table table-striped">
+	    			<thead>
+	    				<tr>
+	    					<td>BetId</td>
+	    					<td>GussedNumber</td>
+	    					<td>Won/Loss</td>
+	    					<td>Amount Won/lost</td>
+	    				</tr>
+	    			</thead>
+	    			<tbody>
+	    				<tr ng-repeat="bp in bettingsParticipated">
+	    					<td>{{bp.betid}}</td>
+	    					<td>{{bp.gussedNumber}}</td>
+	    					<td>{{bp.isWon}}</td>
+	    					<td>{{bp.AmountLostOrGained}}</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+    	</div>
+    </div>
+    <div class="col-sm-8 maindiv"  id="display1">
+		<div class="form-group col-sm-12" >
+		    <div> <h3 class="text-center">Buy Game Coins</h3></div><hr>
+		    <div>
+		    	<h4 >Price Per Coin : {{PricePerCoin}} ether</h4><br>
+		    	 <input type="number" ng-model="$ctrl.inEther"  ng-disabled="$ctrl.inGameCoins " class="form-control col-sm-8" id="Ether" placeholder="Enter Amount Of Ether"><h6 style="color:red"> OR </h6>
+			    <input type="number" ng-model="$ctrl.inGameCoins" ng-disabled="$ctrl.inEther " class="form-control col-sm-8" id="GameCoins" placeholder="Enter GameCoins you want"><br><br>
+			    <button ng-disabled="!$ctrl.inEther && !$ctrl.inGameCoins" ng-click="buyGameCoins()" class="btn btn-lg col-sm-8 btn-primary">BUY COINS</button>
+			    </div>
+		   
+		</div>
+    </div>
+    <div class="col-sm-8 maindiv"  id="display2" style="overflow-x: hidden">
+    	<div> <h3 class="text-center">Active Bettings </h3></div><hr>
+    	<div class="col-sm-12"><h5>Your Remaining Coins : {{currentCoins-freezedCoins}} </h5></div>
+    	<div class="row" style="margin-left: 20px">
+    		<div ng-repeat="bet in $ctrl.bettings" class="col-sm-5 bettingsDiv" ng-click="$ctrl.DoBettingOn($index)" style="" data-toggle="modal" data-target="#PlaceBetModal">
+	    		<div style="padding: 15px;"">
+	    			<span style="margin-right:25%">Betting Id : {{bet.betId}}</span><label style="text-align: right">Multiple : {{bet.multiple}}</label>
+		    		<label>Minimun Bettig Coins : {{bet.minimumCoins}}</label>
+		    		<label>Maximum Betting Coins: {{bet.maximumCoins}}</label>
+
+	    		</div>
+	    	</div>
+    	</div>
+    	
+    </div>
+    <div class="col-sm-8 maindiv" id="display3">
+    	<form ng-submit="betForNumber()">
+    		<div class="col-sm-12 ">
+    			<h3 style="padding: 10px;" class="text-center">Bet Details</h3><hr>
+    			<h5>BetId : {{$ctrl.clickedBet.betId}}</h5>
+    			<h5>Multiple : {{$ctrl.clickedBet.multiple}}</h5>
+    			<h5>Minimum BetCoins : {{$ctrl.clickedBet.minimumCoins}}</h5>
+    			<h5>Maximum BetCoins : {{$ctrl.clickedBet.maximumCoins}}</h5><br><br>
+    			<input type="number" class="form-control col-sm-6" name="BetNumber" min="{{$ctrl.clickedBet.minimumCoins}}" max="{{$ctrl.clickedBet.maximumCoins}}" placeholder="Enter Your betting Coins" required ng-model="$ctrl.clickedBet.BetTokens"><br>
+    			<input type="number" class="form-control col-sm-6" name="BetNumber" min="0" max="6" placeholder="Enter Your Guess Number" required ng-model="$ctrl.clickedBet.guessNumber">
+    			<br><br>
+    			 <button ng-disabled="!$ctrl.clickedBet.BetTokens && !$ctrl.clickedBet.guessNumber" class="btn btn-lg col-sm-4 btn-primary">Bet</button>
+    			 <button  ng-click="betCancel()" class="btn btn-lg col-sm-4 btn-danger">Cancel</button>
+    		</div>
+    	</form>
+		</div>
+    <div class="col-sm-8 maindiv" id="display4">
+    <div> <h3 class="text-center">Place Your Betting </h3></div><hr>
+    	<form class="col-sm-8" style="margin-left: 30px;padding: 10px" ng-submit="$ctrl.PlaceMyBetting()">
+		  <div class="form-group">
+		    <label for="exampleInputEmail1">Minimun Bet Coins</label>
+		    <input type="number" ng-model="$ctrl.BettingToBePlaced.minCoins" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required min="1" max="{{(currentCoins-freezedCoins)}}">
+		    <small id="emailHelp" class="form-text text-muted">Initial amount to bet </small>
+		  </div>
+		  <div class="form-group">
+		    <label for="exampleInputPassword1">Maximum Bet Coins</label>
+		    <input type="number"  ng-model="$ctrl.BettingToBePlaced.maxCoins"  class="form-control" id="exampleInputPassword1" required min="{{$ctrl.BettingToBePlaced.minCoins}}" max="{{(currentCoins-freezedCoins)}}">
+		  </div>
+		   <div class="form-group">
+		    <label for="exampleInputPassword3">Multiple</label>
+		    <input type="number"  ng-model="$ctrl.BettingToBePlaced.multiple"  class="form-control" id="exampleInputPassword3"  aria-describedby="emailHelp1" required min="1" max="{{(currentCoins-freezedCoins)/$ctrl.BettingToBePlaced.maxCoins}}">  <small id="emailHelp1" class="form-text text-muted">Multiple of amount that you can loose</small>
+		  </div>
+		   <div class="form-group">
+		    <label for="exampleInputPassword2">Your Secret Number</label>
+		    <input type="number"  ng-model="$ctrl.BettingToBePlaced.secretNumber"  class="form-control" id="exampleInputPassword2" aria-describedby="emailHelp4" required min="1" max="6">
+		    <small id="emailHelp4" class="form-text text-muted">This Number is Kept secret</small>
+		  </div>
+		 
+		  <button type="submit" class="btn btn-lg col-sm-6 btn-primary">Submit</button>
+		</form>
+    </div>
+     </div>
+	<!--<table class="col-sm-8 table-striped">
+		<thead>
+			<tr>
+				<td>s.no</td>
+				<td>Account Address</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="account in accounts">
+			<td>{{$index+1}}</td>
+			<td>{{account}}</td>
+			</tr>
+		</tbody>
+	</table>-->
+</body>
+</html>
